@@ -1,4 +1,4 @@
-package com.xyf.common.util;
+package com.xyf.common;
 
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;

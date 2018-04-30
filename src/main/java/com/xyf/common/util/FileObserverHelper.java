@@ -1,6 +1,7 @@
 package com.xyf.common.util;
 
 import com.google.common.base.Preconditions;
+import com.xyf.common.Refreshable;
 import com.xyf.common.annotation.UiThread;
 import com.xyf.common.annotation.WorkThread;
 import io.reactivex.Observable;
