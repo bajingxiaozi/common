@@ -18,8 +18,13 @@ public class Sp {
     }
 
     @Nullable
-    public String get(@Nonnull String key, @Nonnull String def) {
+    public String get(@Nonnull String key, @Nullable String def) {
         return sp.get(key, def);
+    }
+
+    @Nullable
+    public String get(@Nonnull String key) {
+        return get(key, null);
     }
 
 }
