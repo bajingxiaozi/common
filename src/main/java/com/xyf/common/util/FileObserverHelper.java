@@ -162,6 +162,7 @@ public class FileObserverHelper {
                 Lg.e(TAG, e);
             }
         });
+        thread.setName("Watch File Change Thread");
         thread.setPriority(Thread.MIN_PRIORITY);
         thread.setDaemon(true);
         thread.start();
