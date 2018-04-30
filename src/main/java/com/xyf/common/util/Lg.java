@@ -64,6 +64,7 @@ public class Lg {
         for (Object obj : objects) {
             if (obj instanceof Throwable) {
                 Throwable throwable = (Throwable) obj;
+                logLine(type, tag, throwable);
                 for (StackTraceElement element : throwable.getStackTrace()) {
                     logLine(type, tag, element);
                 }
