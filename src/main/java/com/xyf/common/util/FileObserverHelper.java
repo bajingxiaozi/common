@@ -27,22 +27,22 @@ public class FileObserverHelper {
 
     @UiThread
     public static void addFile(@Nonnull File file, @Nonnull Refreshable refreshable) {
-        for (WatchHolder holder : fileCallbackList) {
+        for (WatchHolder holder : fileCallbacks) {
             if (holder.file.equals(file) && holder.refreshable == refreshable) {
                 return;
             }
         }
 
         Disposable disposable = Observable.fromCallable(() -> {
-            ensureInit();
             Preconditions.checkArgument(FileUtils2.isFile(file));
 
+            ensureInit();
             WatchKey watchKey = file.getParentFile().toPath().register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
             Lg.i(TAG, "start watch file", file);
             return watchKey;
-        }).subscribeOn(Schedulers.single())
-                .observeOn(JavaFxScheduler.platform())
-                .subscribe(watchKey -> fileCallbackList.add(new WatchHolder(null, file, watchKey, refreshable)), throwable -> Lg.e(TAG, throwable));
+        }).subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
+                .subscribe(watchKey -> fileCallbacks.add(new WatchHolder(null, file, watchKey, refreshable)), throwable -> Lg.e(TAG, throwable));
     }
 
     static class WatchHolder {
@@ -67,12 +67,12 @@ public class FileObserverHelper {
 
     @UiThread
     public static void removeDirectory(@Nonnull String tag) {
-        directoryCallbackList.removeIf(holder -> Objects.equals(holder.tag, tag));
+        directoryCallbacks.removeIf(holder -> Objects.equals(holder.tag, tag));
     }
 
     @UiThread
     public static void addDirectory(@Nonnull String tag, @Nonnull File directory, @Nonnull Refreshable refreshable) {
-        for (WatchHolder holder : directoryCallbackList) {
+        for (WatchHolder holder : directoryCallbacks) {
             if (holder.file.equals(directory) && holder.refreshable == refreshable && Objects.equals(holder.tag, tag)) {
                 return;
             }
@@ -85,13 +85,13 @@ public class FileObserverHelper {
             WatchKey watchKey = directory.toPath().register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
             Lg.i(TAG, "start watch directory", directory);
             return watchKey;
-        }).subscribeOn(Schedulers.single())
-                .observeOn(JavaFxScheduler.platform())
-                .subscribe(watchKey -> directoryCallbackList.add(new WatchHolder(tag, directory, watchKey, refreshable)), throwable -> Lg.e(TAG, throwable));
+        }).subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
+                .subscribe(watchKey -> directoryCallbacks.add(new WatchHolder(tag, directory, watchKey, refreshable)), throwable -> Lg.e(TAG, throwable));
     }
 
-    private static final List<WatchHolder> fileCallbackList = new ArrayList<>();
-    private static final List<WatchHolder> directoryCallbackList = new ArrayList<>();
+    private static final List<WatchHolder> fileCallbacks = new ArrayList<>();
+    private static final List<WatchHolder> directoryCallbacks = new ArrayList<>();
 
     private static final Object WAIT_INIT_LOCK = new Object();
 
@@ -127,7 +127,7 @@ public class FileObserverHelper {
                         if (kind == StandardWatchEventKinds.ENTRY_CREATE || kind == StandardWatchEventKinds.ENTRY_MODIFY || kind == StandardWatchEventKinds.ENTRY_DELETE) {
                             final Path path = (Path) watchEvent.context();
                             Lg.i(TAG, path, kind);
-                            for (WatchHolder holder : fileCallbackList) {
+                            for (WatchHolder holder : fileCallbacks) {
                                 if (holder.watchKey == watchKey) {
                                     final boolean isThisFileChange;
                                     if (path.isAbsolute()) {
@@ -144,7 +144,7 @@ public class FileObserverHelper {
                                 }
                             }
 
-                            for (WatchHolder holder : directoryCallbackList) {
+                            for (WatchHolder holder : directoryCallbacks) {
                                 if (holder.watchKey == watchKey) {
                                     Disposable disposable = Observable.just(new Object())
                                             .subscribeOn(Schedulers.io())
