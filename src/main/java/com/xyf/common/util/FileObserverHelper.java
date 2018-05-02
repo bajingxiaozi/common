@@ -41,7 +41,7 @@ public class FileObserverHelper {
             Lg.i(TAG, "start watch file", file);
             return watchKey;
         }).subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
+                .observeOn(JavaFxScheduler.platform())
                 .subscribe(watchKey -> fileCallbacks.add(new WatchHolder(null, file, watchKey, refreshable)), throwable -> Lg.e(TAG, throwable));
     }
 
@@ -86,7 +86,7 @@ public class FileObserverHelper {
             Lg.i(TAG, "start watch directory", directory);
             return watchKey;
         }).subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.single())
+                .observeOn(JavaFxScheduler.platform())
                 .subscribe(watchKey -> directoryCallbacks.add(new WatchHolder(tag, directory, watchKey, refreshable)), throwable -> Lg.e(TAG, throwable));
     }
 
