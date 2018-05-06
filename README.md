@@ -2,8 +2,6 @@
 
 > 自己常用的一些工具类
 
-已经发布到了`JitPack`上
-
 ![Release](https://jitpack.io/v/bajingxiaozi/common.svg)
 
 ## 使用步骤
