@@ -4,7 +4,7 @@
 
 已经发布到了`GitPack`上
 
-[![Release](https://jitpack.io/v/bajingxiaozi/common.svg)] (https://jitpack.io/#bajingxiaozi/common) 
+![Release](https://jitpack.io/v/bajingxiaozi/common.svg)
 
 ## 使用步骤
 
