@@ -3,6 +3,7 @@ package com.xyf.common.util;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.UUID;
 
 public class FileUtils2 {
 
@@ -28,6 +29,11 @@ public class FileUtils2 {
         } else {
             Lg.e(TAG, "not a file", file);
         }
+    }
+
+    @Nonnull
+    public static String randomName() {
+        return UUID.randomUUID().toString();
     }
 
 }
