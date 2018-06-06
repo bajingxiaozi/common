@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,6 +25,13 @@ public class FileObserverHelper {
 
     @Nullable
     private static WatchService watchService;
+
+    @UiThread
+    public static void addFile(@Nonnull Collection<File> files, @Nonnull Refreshable refreshable) {
+        for (File file : files) {
+            FileObserverHelper.addFile(file, refreshable);
+        }
+    }
 
     @UiThread
     public static void addFile(@Nonnull File file, @Nonnull Refreshable refreshable) {
