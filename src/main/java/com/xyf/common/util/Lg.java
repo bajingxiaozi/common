@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,27 +56,29 @@ public class Lg {
         }
     }
 
-    public static void i(@Nonnull String tag, @Nonnull Object... messages) {
+    public static void i(@Nonnull String tag, @Nullable Object... messages) {
         log(TYPE.INFO, tag, messages);
     }
 
-    private static void log(@NonNull TYPE type, @Nonnull String tag, @Nonnull Object... objects) {
+    private static void log(@NonNull TYPE type, @Nonnull String tag, @Nullable Object... objects) {
         logMethodHead(type, tag);
-        for (Object obj : objects) {
-            if (obj instanceof Throwable) {
-                Throwable throwable = (Throwable) obj;
-                logLine(type, tag, throwable);
-                for (StackTraceElement element : throwable.getStackTrace()) {
-                    logLine(type, tag, element);
-                }
-            } else if (obj instanceof Collection) {
-                Collection collection = (Collection) obj;
-                for (Object item : collection) {
-                    logLine(type, tag, item);
-                }
-            } else {
-                for (String s : obj.toString().split("\n")) {
-                    logLine(type, tag, s);
+        if (objects != null) {
+            for (Object obj : objects) {
+                if (obj instanceof Throwable) {
+                    Throwable throwable = (Throwable) obj;
+                    logLine(type, tag, throwable);
+                    for (StackTraceElement element : throwable.getStackTrace()) {
+                        logLine(type, tag, element);
+                    }
+                } else if (obj instanceof Collection) {
+                    Collection collection = (Collection) obj;
+                    for (Object item : collection) {
+                        logLine(type, tag, item);
+                    }
+                } else {
+                    for (String s : obj.toString().split("\n")) {
+                        logLine(type, tag, s);
+                    }
                 }
             }
         }
@@ -105,7 +108,7 @@ public class Lg {
         }
     }
 
-    public static void e(@Nonnull String tag, @Nonnull Object... messages) {
+    public static void e(@Nonnull String tag, @Nullable Object... messages) {
         log(TYPE.ERROR, tag, messages);
     }
 
