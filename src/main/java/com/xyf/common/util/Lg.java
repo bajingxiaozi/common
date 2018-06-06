@@ -1,7 +1,11 @@
 package com.xyf.common.util;
 
 import com.google.common.base.Strings;
+import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
+import io.reactivex.schedulers.Schedulers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +37,9 @@ public class Lg {
         MESSAGE_TAIL = "└" + Strings.repeat("─", METHOD_BORDER_LENGTH) + "┘";
     }
 
-    private static void logMethodHead(@Nonnull TYPE type, @Nonnull String tag) {
+    private static void logMethodHead(@Nonnull TYPE type, @Nonnull String tag, @Nonnull String methodHead) {
         logBorder(type, tag, METHOD_HEAD);
-        final StackTraceElement element = new Throwable().getStackTrace()[3];
-        logLine(type, tag, String.format("%s(%s:%d)", element.getMethodName(), element.getFileName(), element.getLineNumber()));
+        logLine(type, tag, methodHead);
         logBorder(type, tag, METHOD_SEPARATE);
     }
 
@@ -60,26 +63,37 @@ public class Lg {
     }
 
     private static void log(@NonNull TYPE type, @Nonnull String tag, @Nonnull Object... objects) {
-        logMethodHead(type, tag);
-        for (Object obj : objects) {
-            if (obj instanceof Throwable) {
-                Throwable throwable = (Throwable) obj;
-                logLine(type, tag, throwable);
-                for (StackTraceElement element : throwable.getStackTrace()) {
-                    logLine(type, tag, element);
-                }
-            } else if (obj instanceof Collection) {
-                Collection collection = (Collection) obj;
-                for (Object item : collection) {
-                    logLine(type, tag, item);
-                }
-            } else {
-                for (String s : obj.toString().split("\n")) {
-                    logLine(type, tag, s);
-                }
-            }
+        final String methodHead;
+        {
+            final StackTraceElement element = new Throwable().getStackTrace()[2];
+            methodHead = String.format("%s(%s:%d)", element.getMethodName(), element.getFileName(), element.getLineNumber());
         }
-        logMethodTail(type, tag);
+
+        Disposable disposable = Observable.just(new Object())
+                .subscribeOn(Schedulers.io())
+                .observeOn(JavaFxScheduler.platform())
+                .subscribe(o -> {
+                    logMethodHead(type, tag, methodHead);
+                    for (Object obj : objects) {
+                        if (obj instanceof Throwable) {
+                            Throwable throwable = (Throwable) obj;
+                            logLine(type, tag, throwable);
+                            for (StackTraceElement element : throwable.getStackTrace()) {
+                                logLine(type, tag, element);
+                            }
+                        } else if (obj instanceof Collection) {
+                            Collection collection = (Collection) obj;
+                            for (Object item : collection) {
+                                logLine(type, tag, item);
+                            }
+                        } else {
+                            for (String s : obj.toString().split("\n")) {
+                                logLine(type, tag, s);
+                            }
+                        }
+                    }
+                    logMethodTail(type, tag);
+                });
     }
 
     private static void logLine(@NonNull TYPE type, @Nonnull String tag, @Nonnull Object message) {
