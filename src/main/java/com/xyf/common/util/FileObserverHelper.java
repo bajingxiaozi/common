@@ -71,6 +71,13 @@ public class FileObserverHelper {
     }
 
     @UiThread
+    public static void addDirectories(@Nonnull String tag, @Nonnull List<File> directories, @Nonnull Refreshable refreshable) {
+        for (File dir : directories) {
+            FileObserverHelper.addDirectory(tag, dir, refreshable);
+        }
+    }
+
+    @UiThread
     public static void addDirectory(@Nonnull String tag, @Nonnull File directory, @Nonnull Refreshable refreshable) {
         for (WatchHolder holder : directoryCallbacks) {
             if (holder.file.equals(directory) && holder.refreshable == refreshable && Objects.equals(holder.tag, tag)) {
