@@ -40,7 +40,7 @@ public class FileUtils2 {
 
     @Nonnull
     public static List<File> listImages(@Nonnull File directory) {
-        return Collections.unmodifiableList(new ArrayList<>(FileUtils.listFiles(directory, new SuffixFileFilter(ImageUtils.IMAGE_SUFFIX, IOCase.INSENSITIVE), null)));
+        return new ArrayList<>(FileUtils.listFiles(directory, new SuffixFileFilter(ImageUtils.IMAGE_SUFFIX, IOCase.INSENSITIVE), null));
     }
 
     @Nonnull
