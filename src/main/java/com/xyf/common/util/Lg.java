@@ -1,6 +1,7 @@
 package com.xyf.common.util;
 
 import com.google.common.base.Strings;
+import com.xyf.common.annotation.UiThread;
 import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
@@ -18,6 +19,7 @@ public class Lg {
 
     private static final Map<String, Logger> LOGGER_MAP = new HashMap<>();
 
+    @UiThread
     private static Logger getLogger(@Nonnull String tag) {
         if (!LOGGER_MAP.containsKey(tag)) {
             LOGGER_MAP.put(tag, LoggerFactory.getLogger(tag));
@@ -37,6 +39,7 @@ public class Lg {
         MESSAGE_TAIL = "└" + Strings.repeat("─", METHOD_BORDER_LENGTH) + "┘";
     }
 
+    @UiThread
     private static void logMethodHead(@Nonnull TYPE type, @Nonnull String tag, @Nonnull String methodHead) {
         logBorder(type, tag, METHOD_HEAD);
         logLine(type, tag, methodHead);
@@ -47,6 +50,7 @@ public class Lg {
         INFO, ERROR
     }
 
+    @UiThread
     private static void logMethodTail(@Nonnull TYPE type, @Nonnull String tag) {
         switch (type) {
             case ERROR:
@@ -96,6 +100,7 @@ public class Lg {
                 });
     }
 
+    @UiThread
     private static void logLine(@NonNull TYPE type, @Nonnull String tag, @Nonnull Object message) {
         final String line = String.format("│%-" + METHOD_BORDER_LENGTH + "s│", message.toString());
         switch (type) {
@@ -108,6 +113,7 @@ public class Lg {
         }
     }
 
+    @UiThread
     private static void logBorder(@NonNull TYPE type, @Nonnull String tag, @Nonnull String border) {
         switch (type) {
             case ERROR:
