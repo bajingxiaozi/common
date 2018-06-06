@@ -105,7 +105,13 @@ public class FileObserverHelper {
                 .subscribe(watchKey -> directoryCallbacks.add(new WatchHolder(tag, directory, watchKey, refreshable)), throwable -> Lg.e(TAG, throwable));
     }
 
+    /**
+     * 在UI线程操作此变量
+     */
     private static final List<WatchHolder> fileCallbacks = new ArrayList<>();
+    /**
+     * 在UI线程操作此变量
+     */
     private static final List<WatchHolder> directoryCallbacks = new ArrayList<>();
 
     private static final Object WAIT_INIT_LOCK = new Object();
@@ -159,14 +165,16 @@ public class FileObserverHelper {
                                 }
                             }
 
-                            for (WatchHolder holder : directoryCallbacks) {
-                                if (holder.watchKey == watchKey) {
-                                    Disposable disposable = Observable.just(new Object())
-                                            .subscribeOn(Schedulers.io())
-                                            .observeOn(JavaFxScheduler.platform())
-                                            .subscribe(o -> holder.refreshable.refresh());
-                                }
-                            }
+                            Disposable disposable = Observable.just(new Object())
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(JavaFxScheduler.platform())
+                                    .subscribe(o -> {
+                                        for (WatchHolder holder : directoryCallbacks) {
+                                            if (holder.watchKey == watchKey) {
+                                                holder.refreshable.refresh();
+                                            }
+                                        }
+                                    });
                         }
                     }
 
