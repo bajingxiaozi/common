@@ -72,12 +72,14 @@ public class Lg {
             final StackTraceElement element = new Throwable().getStackTrace()[2];
             methodHead = String.format("%s(%s:%d)", element.getMethodName(), element.getFileName(), element.getLineNumber());
         }
+        final Thread thread = Thread.currentThread();
 
         Disposable disposable = Observable.just(new Object())
                 .subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())
                 .subscribe(o -> {
                     logMethodHead(type, tag, methodHead);
+                    logLine(type, tag, thread);
                     for (Object obj : objects) {
                         if (obj instanceof Throwable) {
                             Throwable throwable = (Throwable) obj;
