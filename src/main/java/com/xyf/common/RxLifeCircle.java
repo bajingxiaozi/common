@@ -30,11 +30,6 @@ public class RxLifeCircle {
         disposableMap.clear();
     }
 
-    public static String getMethodTag() {
-        final StackTraceElement element = new Throwable().getStackTrace()[1];
-        return String.format("%s(%d)", element.getMethodName(), element.getLineNumber());
-    }
-
     private final Map<String, Disposable> disposableMap = new HashMap<>();
 
 }
