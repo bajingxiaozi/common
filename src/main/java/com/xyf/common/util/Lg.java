@@ -62,6 +62,10 @@ public class Lg {
         }
     }
 
+    public static void e(@Nonnull String tag, @Nonnull Object... messages) {
+        log(TYPE.ERROR, tag, messages);
+    }
+
     public static void w(@Nonnull String tag, @Nonnull Object... messages) {
         log(TYPE.WARN, tag, messages);
     }
@@ -145,10 +149,6 @@ public class Lg {
                 getLogger(tag).debug(border);
                 break;
         }
-    }
-
-    public static void e(@Nonnull String tag, @Nonnull Object... messages) {
-        log(TYPE.ERROR, tag, messages);
     }
 
 }
