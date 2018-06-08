@@ -50,17 +50,6 @@ public class Lg {
         DEBUG, INFO, WARN, ERROR
     }
 
-    @UiThread
-    private static void logMethodTail(@Nonnull TYPE type, @Nonnull String tag) {
-        switch (type) {
-            case ERROR:
-                getLogger(tag).error(MESSAGE_TAIL);
-                break;
-            default:
-                getLogger(tag).info(MESSAGE_TAIL);
-                break;
-        }
-    }
 
     public static void e(@Nonnull String tag, @Nonnull Object... messages) {
         log(TYPE.ERROR, tag, messages);
@@ -112,6 +101,24 @@ public class Lg {
                     }
                     logMethodTail(type, tag);
                 });
+    }
+
+    @UiThread
+    private static void logMethodTail(@Nonnull TYPE type, @Nonnull String tag) {
+        switch (type) {
+            case ERROR:
+                getLogger(tag).error(MESSAGE_TAIL);
+                break;
+            case WARN:
+                getLogger(tag).warn(MESSAGE_TAIL);
+                break;
+            case INFO:
+                getLogger(tag).info(MESSAGE_TAIL);
+                break;
+            default:
+                getLogger(tag).debug(MESSAGE_TAIL);
+                break;
+        }
     }
 
     @UiThread
