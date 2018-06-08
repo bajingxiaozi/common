@@ -27,14 +27,14 @@ public class FileObserverHelper {
     private static WatchService watchService;
 
     @UiThread
-    public static void addFile(@Nonnull Collection<File> files, @Nonnull Refreshable refreshable) {
+    public static void addFile(@Nonnull String tag, @Nonnull Collection<File> files, @Nonnull Refreshable refreshable) {
         for (File file : files) {
-            FileObserverHelper.addFile(file, refreshable);
+            FileObserverHelper.addFile(tag, file, refreshable);
         }
     }
 
     @UiThread
-    public static void addFile(@Nonnull File file, @Nonnull Refreshable refreshable) {
+    public static void addFile(@Nonnull String tag, @Nonnull File file, @Nonnull Refreshable refreshable) {
         for (WatchHolder holder : fileCallbacks) {
             if (holder.file.equals(file) && holder.refreshable == refreshable) {
                 return;
@@ -50,7 +50,12 @@ public class FileObserverHelper {
             return watchKey;
         }).subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())
-                .subscribe(watchKey -> fileCallbacks.add(new WatchHolder(null, file, watchKey, refreshable)), throwable -> Lg.e(TAG, throwable));
+                .subscribe(watchKey -> fileCallbacks.add(new WatchHolder(tag, file, watchKey, refreshable)), throwable -> Lg.e(TAG, throwable));
+    }
+
+    @UiThread
+    public static void removeFile(@Nonnull String tag) {
+        fileCallbacks.removeIf(holder -> Objects.equals(holder.tag, tag));
     }
 
     static class WatchHolder {
