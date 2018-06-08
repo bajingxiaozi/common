@@ -47,7 +47,7 @@ public class Lg {
     }
 
     private enum TYPE {
-        INFO, ERROR
+        DEBUG, INFO, WARN, ERROR
     }
 
     @UiThread
@@ -60,6 +60,14 @@ public class Lg {
                 getLogger(tag).info(MESSAGE_TAIL);
                 break;
         }
+    }
+
+    public static void w(@Nonnull String tag, @Nonnull Object... messages) {
+        log(TYPE.WARN, tag, messages);
+    }
+
+    public static void d(@Nonnull String tag, @Nonnull Object... messages) {
+        log(TYPE.DEBUG, tag, messages);
     }
 
     public static void i(@Nonnull String tag, @Nonnull Object... messages) {
@@ -109,8 +117,14 @@ public class Lg {
             case ERROR:
                 getLogger(tag).error(line);
                 break;
-            default:
+            case WARN:
+                getLogger(tag).warn(line);
+                break;
+            case INFO:
                 getLogger(tag).info(line);
+                break;
+            default:
+                getLogger(tag).debug(line);
                 break;
         }
     }
@@ -121,8 +135,14 @@ public class Lg {
             case ERROR:
                 getLogger(tag).error(border);
                 break;
-            default:
+            case WARN:
+                getLogger(tag).warn(border);
+                break;
+            case INFO:
                 getLogger(tag).info(border);
+                break;
+            default:
+                getLogger(tag).debug(border);
                 break;
         }
     }
