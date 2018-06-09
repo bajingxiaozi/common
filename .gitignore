@@ -1,21 +1,21 @@
+# pom
 *.iml
-.gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
+
+# mac
 .DS_Store
-/build
-/captures
-.externalNativeBuild
+
+# gradle
 .gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-.DS_Store
-/build
-*.iml
-/.idea
-/target
-/out
 gradlew
 gradlew.bat
+/build
+/out
+
+# idea
+/.idea
+
+# 其他
+/captures
+.externalNativeBuild
+/local.properties
+/target

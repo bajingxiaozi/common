@@ -41,9 +41,9 @@ public class Lg {
 
     @UiThread
     private static void logMethodHead(@Nonnull TYPE type, @Nonnull String tag, @Nonnull String methodHead) {
-        logBorder(type, tag, METHOD_HEAD);
+        logMessage(type, tag, METHOD_HEAD);
         logLine(type, tag, methodHead);
-        logBorder(type, tag, METHOD_SEPARATE);
+        logMessage(type, tag, METHOD_SEPARATE);
     }
 
     private enum TYPE {
@@ -73,14 +73,12 @@ public class Lg {
             final StackTraceElement element = new Throwable().getStackTrace()[2];
             methodHead = String.format("%s(%s:%d)", element.getMethodName(), element.getFileName(), element.getLineNumber());
         }
-        final Thread thread = Thread.currentThread();
 
         Disposable disposable = Observable.just(new Object())
                 .subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())
                 .subscribe(o -> {
                     logMethodHead(type, tag, methodHead);
-                    logLine(type, tag, thread);
                     for (Object obj : objects) {
                         if (obj instanceof Throwable) {
                             Throwable throwable = (Throwable) obj;
@@ -105,55 +103,30 @@ public class Lg {
 
     @UiThread
     private static void logMethodTail(@Nonnull TYPE type, @Nonnull String tag) {
-        switch (type) {
-            case ERROR:
-                getLogger(tag).error(MESSAGE_TAIL);
-                break;
-            case WARN:
-                getLogger(tag).warn(MESSAGE_TAIL);
-                break;
-            case INFO:
-                getLogger(tag).info(MESSAGE_TAIL);
-                break;
-            default:
-                getLogger(tag).debug(MESSAGE_TAIL);
-                break;
-        }
+        logMessage(type, tag, MESSAGE_TAIL);
     }
 
     @UiThread
     private static void logLine(@NonNull TYPE type, @Nonnull String tag, @Nonnull Object message) {
         final String line = String.format("│%-" + METHOD_BORDER_LENGTH + "s│", message.toString());
-        switch (type) {
-            case ERROR:
-                getLogger(tag).error(line);
-                break;
-            case WARN:
-                getLogger(tag).warn(line);
-                break;
-            case INFO:
-                getLogger(tag).info(line);
-                break;
-            default:
-                getLogger(tag).debug(line);
-                break;
-        }
+        logMessage(type, tag, line);
     }
 
     @UiThread
-    private static void logBorder(@NonNull TYPE type, @Nonnull String tag, @Nonnull String border) {
+    private static void logMessage(@NonNull TYPE type, @Nonnull String tag, @Nonnull String message) {
+        final String fixMessage = Thread.currentThread().getName() + message;
         switch (type) {
             case ERROR:
-                getLogger(tag).error(border);
+                getLogger(tag).error(fixMessage);
                 break;
             case WARN:
-                getLogger(tag).warn(border);
+                getLogger(tag).warn(fixMessage);
                 break;
             case INFO:
-                getLogger(tag).info(border);
+                getLogger(tag).info(fixMessage);
                 break;
             default:
-                getLogger(tag).debug(border);
+                getLogger(tag).debug(fixMessage);
                 break;
         }
     }
