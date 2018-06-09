@@ -28,7 +28,7 @@ public class Lg {
         return LOGGER_MAP.get(tag);
     }
 
-    private static final int METHOD_BORDER_LENGTH = 100;
+    private static final int METHOD_BORDER_LENGTH = 120;
     private static final String METHOD_HEAD;
     private static final String METHOD_SEPARATE;
     private static final String MESSAGE_TAIL;
@@ -74,11 +74,14 @@ public class Lg {
             methodHead = String.format("%s(%s:%d)", element.getMethodName(), element.getFileName(), element.getLineNumber());
         }
 
+        final Thread thread = Thread.currentThread();
+
         Disposable disposable = Observable.just(new Object())
                 .subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())
                 .subscribe(o -> {
                     logMethodHead(type, tag, methodHead);
+                    logLine(type, tag, thread.getName());
                     for (Object obj : objects) {
                         if (obj instanceof Throwable) {
                             Throwable throwable = (Throwable) obj;
@@ -114,19 +117,18 @@ public class Lg {
 
     @UiThread
     private static void logMessage(@NonNull TYPE type, @Nonnull String tag, @Nonnull String message) {
-        final String fixMessage = Thread.currentThread().getName() + message;
         switch (type) {
             case ERROR:
-                getLogger(tag).error(fixMessage);
+                getLogger(tag).error(message);
                 break;
             case WARN:
-                getLogger(tag).warn(fixMessage);
+                getLogger(tag).warn(message);
                 break;
             case INFO:
-                getLogger(tag).info(fixMessage);
+                getLogger(tag).info(message);
                 break;
             default:
-                getLogger(tag).debug(fixMessage);
+                getLogger(tag).debug(message);
                 break;
         }
     }
