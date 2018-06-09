@@ -81,7 +81,7 @@ public class Lg {
                 .observeOn(JavaFxScheduler.platform())
                 .subscribe(o -> {
                     logMethodHead(type, tag, methodHead);
-                    logLine(type, tag, thread.getName());
+                    logLine(type, tag, thread);
                     for (Object obj : objects) {
                         if (obj instanceof Throwable) {
                             Throwable throwable = (Throwable) obj;
