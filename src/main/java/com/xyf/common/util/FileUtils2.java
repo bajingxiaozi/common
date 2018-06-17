@@ -1,5 +1,6 @@
 package com.xyf.common.util;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
@@ -62,6 +63,12 @@ public class FileUtils2 {
     @Nonnull
     public static File randomDirectory(@Nonnull File directory) {
         return randomFile(directory);
+    }
+
+    public static boolean isDirectoryEmpty(@Nonnull File directory) {
+        Preconditions.checkArgument(FileUtils2.isDirectory(directory), directory);
+
+        return CollectionUtils.isEmpty(directory.listFiles());
     }
 
 }
