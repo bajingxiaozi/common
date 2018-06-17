@@ -59,4 +59,9 @@ public class FileUtils2 {
         return new File(directory, randomName());
     }
 
+    @Nonnull
+    public static File randomDirectory(@Nonnull File directory) {
+        return randomFile(directory);
+    }
+
 }
