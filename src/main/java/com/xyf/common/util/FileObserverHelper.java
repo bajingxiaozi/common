@@ -136,6 +136,7 @@ public class FileObserverHelper {
                     hasStartInit = true;
                     init();
                 }
+                Lg.d(TAG, "wait file watch service init...");
                 WAIT_INIT_LOCK.wait();
             }
         }
@@ -143,6 +144,7 @@ public class FileObserverHelper {
 
     @WorkThread
     private static void init() {
+        Lg.i(TAG, "start init file watch service");
         Thread thread = new Thread(() -> {
             try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
                 Preconditions.checkState(FileObserverHelper.watchService == null, "file watch service init twice");
@@ -154,7 +156,7 @@ public class FileObserverHelper {
                     WAIT_INIT_LOCK.notifyAll();
                 }
 
-                Lg.i(TAG, "start watch file change");
+                Lg.i(TAG, "file watch service init success, start watch file change");
 
                 while (true) {
                     final WatchKey watchKey = watchService.take();
