@@ -35,6 +35,8 @@ public class FileObserverHelper {
 
     @UiThread
     public static void addFile(@Nonnull String tag, @Nonnull File file, @Nonnull Refreshable refreshable) {
+        Lg.d(TAG, tag, file, refreshable);
+
         for (WatchHolder holder : fileCallbacks) {
             if (holder.file.equals(file) && holder.refreshable == refreshable) {
                 return;
@@ -42,7 +44,7 @@ public class FileObserverHelper {
         }
 
         Disposable disposable = Observable.fromCallable(() -> {
-            Preconditions.checkArgument(FileUtils2.isFile(file));
+            Preconditions.checkArgument(FileUtils2.isFile(file), file);
 
             ensureInit();
             WatchKey watchKey = file.getParentFile().toPath().register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
@@ -92,6 +94,8 @@ public class FileObserverHelper {
 
     @UiThread
     public static void addDirectory(@Nonnull String tag, @Nonnull File directory, @Nonnull Refreshable refreshable) {
+        Lg.d(TAG, tag, directory, refreshable);
+
         for (WatchHolder holder : directoryCallbacks) {
             if (holder.file.equals(directory) && holder.refreshable == refreshable && Objects.equals(holder.tag, tag)) {
                 return;
@@ -99,9 +103,9 @@ public class FileObserverHelper {
         }
 
         Disposable disposable = Observable.fromCallable(() -> {
-            ensureInit();
             Preconditions.checkArgument(FileUtils2.isDirectory(directory), directory);
 
+            ensureInit();
             WatchKey watchKey = directory.toPath().register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
             Lg.i(TAG, "start watch directory", directory);
             return watchKey;
@@ -121,11 +125,17 @@ public class FileObserverHelper {
 
     private static final Object WAIT_INIT_LOCK = new Object();
 
+    private static boolean hasStartInit = false;
+    private static boolean hasInitSuccess = false;
+
     @WorkThread
     private static void ensureInit() throws InterruptedException {
         synchronized (WAIT_INIT_LOCK) {
-            while (watchService == null) {
-                init();
+            while (!hasInitSuccess) {
+                if (!hasStartInit) {
+                    hasStartInit = true;
+                    init();
+                }
                 WAIT_INIT_LOCK.wait();
             }
         }
@@ -135,8 +145,12 @@ public class FileObserverHelper {
     private static void init() {
         Thread thread = new Thread(() -> {
             try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
+                Preconditions.checkState(FileObserverHelper.watchService == null, "file watch service init twice");
+
+                FileObserverHelper.watchService = watchService;
+                hasInitSuccess = true;
+
                 synchronized (WAIT_INIT_LOCK) {
-                    FileObserverHelper.watchService = watchService;
                     WAIT_INIT_LOCK.notifyAll();
                 }
 
