@@ -27,7 +27,7 @@ public class FileUtils2 {
 
     public static void deleteFile(@Nonnull File file) {
         if (!file.exists()) {
-            Lg.e(TAG, file, "not exist");
+            Lg.w(TAG, file, "not exist");
             return;
         }
 
@@ -52,6 +52,11 @@ public class FileUtils2 {
     @Nonnull
     public static String randomName() {
         return UUID.randomUUID().toString();
+    }
+
+    @Nonnull
+    public static File randomFile(@Nonnull File directory) {
+        return new File(directory, randomName());
     }
 
 }
