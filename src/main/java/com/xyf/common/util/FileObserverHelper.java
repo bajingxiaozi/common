@@ -48,7 +48,7 @@ public class FileObserverHelper {
 
             ensureInit();
             WatchKey watchKey = file.getParentFile().toPath().register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
-            Lg.i(TAG, "start watch file", file);
+            Lg.i(TAG, "watching file", file);
             return watchKey;
         }).subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())
@@ -107,7 +107,7 @@ public class FileObserverHelper {
 
             ensureInit();
             WatchKey watchKey = directory.toPath().register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
-            Lg.i(TAG, "start watch directory", directory);
+            Lg.i(TAG, "watching directory", directory);
             return watchKey;
         }).subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())

@@ -8,8 +8,7 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.File;
-import java.io.FileFilter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +37,14 @@ public class FileUtils2 {
         } else {
             Lg.e(TAG, "not a file", file);
         }
+    }
+
+    public static Reader toReader(@Nonnull File file) throws IOException {
+        return new InputStreamReader(FileUtils.openInputStream(file), "utf-8");
+    }
+
+    public static Reader toReader(@Nonnull String file) throws IOException {
+        return toReader(new File(file));
     }
 
     @Nonnull
