@@ -47,6 +47,14 @@ public class FileUtils2 {
         return toReader(new File(file));
     }
 
+    public static Writer toWriter(@Nonnull File file) throws IOException {
+        return new OutputStreamWriter(FileUtils.openOutputStream(file), "utf-8");
+    }
+
+    public static Writer toWriter(@Nonnull String file) throws IOException {
+        return toWriter(new File(file));
+    }
+
     @Nonnull
     public static List<File> listImages(@Nonnull File directory) {
         return new ArrayList<>(FileUtils.listFiles(directory, new SuffixFileFilter(ImageUtils.IMAGE_SUFFIX, IOCase.INSENSITIVE), null));
