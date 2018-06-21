@@ -18,7 +18,7 @@ public class SystemUtils2 {
     public static void killWindowsProces(@Nonnull String name) throws Exception {
         Preconditions.checkArgument(SystemUtils.IS_OS_WINDOWS);
 
-        execute("taskkill" + "/im" + name + "/f");
+        execute("taskkill", "/im", name, "/f");
     }
 
     @WorkThread
