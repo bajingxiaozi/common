@@ -37,7 +37,7 @@ public class SystemUtils2 {
             messages.add(message);
         }
         final int exitValue = process.waitFor();
-        Lg.i(TAG, parameters, messages, exitValue);
+        Lg.d(TAG, parameters, messages, exitValue);
 
         return messages;
     }
