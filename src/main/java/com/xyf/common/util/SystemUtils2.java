@@ -34,11 +34,10 @@ public class SystemUtils2 {
                 break;
             }
 
-            Lg.i(TAG, parameters, messages);
             messages.add(message);
         }
         final int exitValue = process.waitFor();
-        Lg.i(TAG, parameters, exitValue);
+        Lg.i(TAG, parameters, messages, exitValue);
 
         return messages;
     }
