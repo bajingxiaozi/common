@@ -141,9 +141,7 @@ public class FileObserverHelper {
                     init();
                 }
 
-                Lg.d(TAG, "start wait file watch service init...", hasInitSuccess, hasStartInit);
                 WAIT_INIT_LOCK.wait();
-                Lg.d(TAG, "end wait file watch service init", hasInitSuccess, hasStartInit);
             }
         }
     }
@@ -194,7 +192,6 @@ public class FileObserverHelper {
 
     @WorkThread
     private static void init() {
-        Lg.d(TAG, "start init file watch service");
         Thread thread = new Thread(() -> {
             try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
                 Preconditions.checkState(FileObserverHelper.watchService == null, "file watch service init twice");
