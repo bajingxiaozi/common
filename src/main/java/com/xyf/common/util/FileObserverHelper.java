@@ -37,27 +37,27 @@ public class FileObserverHelper {
     public static void addFile(@Nonnull String tag, @Nonnull File file, @Nonnull Refreshable refreshable) {
         Lg.d(TAG, tag, file, refreshable);
 
-        for (WatchHolder holder : fileCallbacks) {
+        for (WatchHolder holder : fileWatchHolders) {
             if (holder.file.equals(file) && holder.refreshable == refreshable) {
                 return;
             }
         }
 
         Disposable disposable = Observable.fromCallable(() -> {
-            Preconditions.checkArgument(FileUtils2.isFile(file), file);
+            Preconditions.checkArgument(FileUtils2.isFile(file), file + " not a file");
 
             ensureInit();
             WatchKey watchKey = file.getParentFile().toPath().register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
-            Lg.i(TAG, "watching file", file);
+            Lg.d(TAG, "watching file", file, watchKey);
             return watchKey;
         }).subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())
-                .subscribe(watchKey -> fileCallbacks.add(new WatchHolder(tag, file, watchKey, refreshable)), throwable -> Lg.e(TAG, throwable));
+                .subscribe(watchKey -> fileWatchHolders.add(new WatchHolder(tag, file, watchKey, refreshable)), throwable -> Lg.e(TAG, throwable));
     }
 
     @UiThread
     public static void removeFile(@Nonnull String tag) {
-        fileCallbacks.removeIf(holder -> Objects.equals(holder.tag, tag));
+        fileWatchHolders.removeIf(holder -> Objects.equals(holder.tag, tag));
     }
 
     static class WatchHolder {
@@ -82,7 +82,7 @@ public class FileObserverHelper {
 
     @UiThread
     public static void removeDirectory(@Nonnull String tag) {
-        directoryCallbacks.removeIf(holder -> Objects.equals(holder.tag, tag));
+        directoryWatchHolders.removeIf(holder -> Objects.equals(holder.tag, tag));
     }
 
     @UiThread
@@ -96,32 +96,32 @@ public class FileObserverHelper {
     public static void addDirectory(@Nonnull String tag, @Nonnull File directory, @Nonnull Refreshable refreshable) {
         Lg.d(TAG, tag, directory, refreshable);
 
-        for (WatchHolder holder : directoryCallbacks) {
-            if (holder.file.equals(directory) && holder.refreshable == refreshable && Objects.equals(holder.tag, tag)) {
+        for (WatchHolder holder : directoryWatchHolders) {
+            if (holder.file.equals(directory) && holder.refreshable == refreshable) {
                 return;
             }
         }
 
         Disposable disposable = Observable.fromCallable(() -> {
-            Preconditions.checkArgument(FileUtils2.isDirectory(directory), directory);
+            Preconditions.checkArgument(FileUtils2.isDirectory(directory), directory + " is not a directory");
 
             ensureInit();
             WatchKey watchKey = directory.toPath().register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
-            Lg.i(TAG, "watching directory", directory);
+            Lg.d(TAG, "watching directory", directory, watchKey);
             return watchKey;
         }).subscribeOn(Schedulers.io())
                 .observeOn(JavaFxScheduler.platform())
-                .subscribe(watchKey -> directoryCallbacks.add(new WatchHolder(tag, directory, watchKey, refreshable)), throwable -> Lg.e(TAG, throwable));
+                .subscribe(watchKey -> directoryWatchHolders.add(new WatchHolder(tag, directory, watchKey, refreshable)), throwable -> Lg.e(TAG, throwable));
     }
 
     /**
      * 在UI线程操作此变量
      */
-    private static final List<WatchHolder> fileCallbacks = new ArrayList<>();
+    private static final List<WatchHolder> fileWatchHolders = new ArrayList<>();
     /**
      * 在UI线程操作此变量
      */
-    private static final List<WatchHolder> directoryCallbacks = new ArrayList<>();
+    private static final List<WatchHolder> directoryWatchHolders = new ArrayList<>();
 
     private static final Object WAIT_INIT_LOCK = new Object();
 
@@ -130,46 +130,43 @@ public class FileObserverHelper {
 
     @WorkThread
     private static void ensureInit() throws InterruptedException {
+        if (hasInitSuccess) {
+            return;
+        }
+
         synchronized (WAIT_INIT_LOCK) {
             while (!hasInitSuccess) {
                 if (!hasStartInit) {
                     hasStartInit = true;
                     init();
                 }
-                Lg.d(TAG, "wait file watch service init...");
+
+                Lg.d(TAG, "start wait file watch service init...", hasInitSuccess, hasStartInit);
                 WAIT_INIT_LOCK.wait();
+                Lg.d(TAG, "end wait file watch service init", hasInitSuccess, hasStartInit);
             }
         }
     }
 
     @WorkThread
-    private static void init() {
-        Lg.i(TAG, "start init file watch service");
-        Thread thread = new Thread(() -> {
-            try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
-                Preconditions.checkState(FileObserverHelper.watchService == null, "file watch service init twice");
+    private static void handleEvent() throws InterruptedException {
+        Preconditions.checkNotNull(watchService);
 
-                FileObserverHelper.watchService = watchService;
-                hasInitSuccess = true;
+        final WatchKey watchKey = watchService.take();
+        for (WatchEvent watchEvent : watchKey.pollEvents()) {
+            final WatchEvent.Kind kind = watchEvent.kind();
+            Lg.d(TAG, watchKey, watchEvent, kind);
+            if (kind == StandardWatchEventKinds.OVERFLOW) {
+                continue;
+            }
 
-                synchronized (WAIT_INIT_LOCK) {
-                    WAIT_INIT_LOCK.notifyAll();
-                }
-
-                Lg.i(TAG, "file watch service init success, start watch file change");
-
-                while (true) {
-                    final WatchKey watchKey = watchService.take();
-                    for (WatchEvent watchEvent : watchKey.pollEvents()) {
-                        final WatchEvent.Kind kind = watchEvent.kind();
-                        if (kind == StandardWatchEventKinds.OVERFLOW) {
-                            continue;
-                        }
-
-                        if (kind == StandardWatchEventKinds.ENTRY_CREATE || kind == StandardWatchEventKinds.ENTRY_MODIFY || kind == StandardWatchEventKinds.ENTRY_DELETE) {
+            if (kind == StandardWatchEventKinds.ENTRY_CREATE || kind == StandardWatchEventKinds.ENTRY_MODIFY || kind == StandardWatchEventKinds.ENTRY_DELETE) {
+                Disposable disposable = Observable.just(new Object())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(JavaFxScheduler.platform())
+                        .subscribe(o -> {
                             final Path path = (Path) watchEvent.context();
-                            Lg.i(TAG, path, kind);
-                            for (WatchHolder holder : fileCallbacks) {
+                            for (WatchHolder holder : fileWatchHolders) {
                                 if (holder.watchKey == watchKey) {
                                     final boolean isThisFileChange;
                                     if (path.isAbsolute()) {
@@ -178,30 +175,41 @@ public class FileObserverHelper {
                                         isThisFileChange = path.toString().equals(holder.file.getName());
                                     }
                                     if (isThisFileChange) {
-                                        Disposable disposable = Observable.just(new Object())
-                                                .subscribeOn(Schedulers.io())
-                                                .observeOn(JavaFxScheduler.platform())
-                                                .subscribe(o -> holder.refreshable.refresh());
+                                        holder.refreshable.refresh();
                                     }
                                 }
                             }
 
-                            Disposable disposable = Observable.just(new Object())
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(JavaFxScheduler.platform())
-                                    .subscribe(o -> {
-                                        for (WatchHolder holder : directoryCallbacks) {
-                                            if (holder.watchKey == watchKey) {
-                                                holder.refreshable.refresh();
-                                            }
-                                        }
-                                    });
-                        }
-                    }
+                            for (WatchHolder holder : directoryWatchHolders) {
+                                if (holder.watchKey == watchKey) {
+                                    holder.refreshable.refresh();
+                                }
+                            }
+                        });
+            }
+        }
 
-                    boolean valid = watchKey.reset();
+        boolean valid = watchKey.reset();
+    }
+
+    @WorkThread
+    private static void init() {
+        Lg.d(TAG, "start init file watch service");
+        Thread thread = new Thread(() -> {
+            try (WatchService watchService = FileSystems.getDefault().newWatchService()) {
+                Preconditions.checkState(FileObserverHelper.watchService == null, "file watch service init twice");
+
+                synchronized (WAIT_INIT_LOCK) {
+                    FileObserverHelper.watchService = watchService;
+                    hasInitSuccess = true;
+                    WAIT_INIT_LOCK.notifyAll();
                 }
 
+                Lg.d(TAG, "file watch service init success, start watch file change", watchService);
+
+                while (true) {
+                    handleEvent();
+                }
             } catch (IOException | InterruptedException e) {
                 Lg.e(TAG, e);
             }
