@@ -153,7 +153,7 @@ public class FileObserverHelper {
         final WatchKey watchKey = watchService.take();
         for (WatchEvent watchEvent : watchKey.pollEvents()) {
             final WatchEvent.Kind kind = watchEvent.kind();
-            Lg.d(TAG, watchKey, watchEvent, kind);
+            Lg.d(TAG, watchKey, watchEvent, kind, watchEvent.context());
             if (kind == StandardWatchEventKinds.OVERFLOW) {
                 continue;
             }
@@ -199,10 +199,9 @@ public class FileObserverHelper {
                 synchronized (WAIT_INIT_LOCK) {
                     FileObserverHelper.watchService = watchService;
                     hasInitSuccess = true;
+                    Lg.d(TAG, "file watch service init success, start watch file change", watchService);
                     WAIT_INIT_LOCK.notifyAll();
                 }
-
-                Lg.d(TAG, "file watch service init success, start watch file change", watchService);
 
                 while (true) {
                     handleEvent();
