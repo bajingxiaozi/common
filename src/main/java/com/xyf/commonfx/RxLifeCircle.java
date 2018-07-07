@@ -1,4 +1,4 @@
-package com.xyf.common;
+package com.xyf.commonfx;
 
 import com.xyf.common.annotation.UiThread;
 import io.reactivex.disposables.Disposable;

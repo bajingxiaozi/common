@@ -1,9 +1,10 @@
-package com.xyf.common.util;
+package com.xyf.common;
 
 import com.google.common.base.Preconditions;
-import com.xyf.common.Refreshable;
 import com.xyf.common.annotation.UiThread;
 import com.xyf.common.annotation.WorkThread;
+import com.xyf.common.util.FileUtils2;
+import com.xyf.common.util.Lg;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
