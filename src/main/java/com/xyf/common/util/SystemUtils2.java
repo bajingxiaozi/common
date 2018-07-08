@@ -2,6 +2,7 @@ package com.xyf.common.util;
 
 import com.google.common.base.Preconditions;
 import com.xyf.common.annotation.WorkThread;
+import io.reactivex.ObservableEmitter;
 import org.apache.commons.lang3.SystemUtils;
 
 import javax.annotation.Nonnull;
@@ -23,28 +24,57 @@ public class SystemUtils2 {
 
     @WorkThread
     public static List<String> execute(@Nonnull List<String> parameters) throws Exception {
-        ProcessBuilder processBuilder = new ProcessBuilder(parameters);
-        processBuilder.redirectErrorStream(true);
+        ProcessBuilder processBuilder = new ProcessBuilder(parameters).redirectErrorStream(true);
         Process process = processBuilder.start();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        List<String> messages = new ArrayList<>();
-        while (true) {
-            String message = reader.readLine();
-            if (message == null) {
-                break;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            List<String> messages = new ArrayList<>();
+            while (true) {
+                String message = reader.readLine();
+                if (message == null) {
+                    break;
+                }
+
+                messages.add(message);
             }
 
-            messages.add(message);
-        }
-        final int exitValue = process.waitFor();
-        Lg.d(TAG, parameters, messages, exitValue);
+            final int exitValue = process.waitFor();
+            Lg.d(TAG, parameters, messages, exitValue);
 
-        return messages;
+            return messages;
+        }
     }
 
     @WorkThread
     public static List<String> execute(@Nonnull String... parameters) throws Exception {
         return execute(Arrays.asList(parameters));
+    }
+
+    @WorkThread
+    public static boolean execute(@Nonnull ObservableEmitter<String> emitter, @Nonnull List<String> parameters) throws Exception {
+        Lg.d(TAG, parameters);
+        ProcessBuilder processBuilder = new ProcessBuilder(parameters).redirectErrorStream(true);
+        Process executor = processBuilder.start();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(executor.getInputStream()))) {
+            while (true) {
+                String message = reader.readLine();
+                if (message == null) {
+                    break;
+                }
+
+                Lg.d(TAG, message);
+                emitter.onNext(message);
+            }
+        }
+
+        final int NORMAL_EXIT = 0;
+        final int exitValue = executor.waitFor();
+        Lg.d(TAG, parameters, exitValue);
+        return exitValue == NORMAL_EXIT;
+    }
+
+    @WorkThread
+    public static boolean execute(@Nonnull ObservableEmitter<String> emitter, @Nonnull String... parameters) throws Exception {
+        return execute(emitter, Arrays.asList(parameters));
     }
 
 }
