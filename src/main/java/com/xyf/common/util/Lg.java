@@ -94,6 +94,8 @@ public class Lg {
                             for (Object item : collection) {
                                 logLine(type, tag, item);
                             }
+                        } else if (obj == null) {
+                            logLine(type, tag, "null");
                         } else {
                             for (String s : obj.toString().split("\n")) {
                                 logLine(type, tag, s);
@@ -111,7 +113,7 @@ public class Lg {
 
     @UiThread
     private static void logLine(@NonNull TYPE type, @Nonnull String tag, @Nonnull Object message) {
-        final String line = String.format("│%-" + METHOD_BORDER_LENGTH + "s│", message.toString());
+        final String line = String.format("│%-" + METHOD_BORDER_LENGTH + "s│", message);
         logMessage(type, tag, line);
     }
 
