@@ -33,7 +33,7 @@ public class FileUtils2 {
 
         if (file.isFile()) {
             boolean result = file.delete();
-            Lg.i(TAG, file, result);
+            Lg.d(TAG, file, result);
         } else {
             Lg.w(TAG, "not a file", file);
         }
