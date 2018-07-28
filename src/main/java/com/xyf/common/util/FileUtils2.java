@@ -9,6 +9,7 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -40,7 +41,7 @@ public class FileUtils2 {
     }
 
     public static Reader toReader(@Nonnull File file) throws IOException {
-        return new InputStreamReader(FileUtils.openInputStream(file), "utf-8");
+        return new InputStreamReader(FileUtils.openInputStream(file), StandardCharsets.UTF_8);
     }
 
     public static Reader toReader(@Nonnull String file) throws IOException {
@@ -48,7 +49,7 @@ public class FileUtils2 {
     }
 
     public static Writer toWriter(@Nonnull File file) throws IOException {
-        return new OutputStreamWriter(FileUtils.openOutputStream(file), "utf-8");
+        return new OutputStreamWriter(FileUtils.openOutputStream(file), StandardCharsets.UTF_8);
     }
 
     public static Writer toWriter(@Nonnull String file) throws IOException {
