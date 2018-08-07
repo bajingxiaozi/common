@@ -27,4 +27,8 @@ public class Sp {
         return get(key, null);
     }
 
+    public void remove(@Nonnull String key) {
+        sp.remove(key);
+    }
+
 }
