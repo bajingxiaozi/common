@@ -12,7 +12,7 @@ public class MethodUtils {
 
     @Nonnull
     public static String getTag(@Nonnull Object object) {
-        return getTag() + object;
+        return String.format("%s(object hash: %s)", getTag(), object.hashCode());
     }
 
 }
