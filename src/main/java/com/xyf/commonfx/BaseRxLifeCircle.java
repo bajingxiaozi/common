@@ -17,7 +17,7 @@ public abstract class BaseRxLifeCircle extends RxLifeCircle implements Refreshab
     @Override
     public final void refresh() {
         Lg.d(TAG, this);
-        final String methodTag = MethodUtils.getMethodTag();
+        final String methodTag = MethodUtils.getTag();
         removeDisposable(methodTag);
         Disposable disposable = Observable.timer(300, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.computation())
