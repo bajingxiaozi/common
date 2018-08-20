@@ -41,7 +41,7 @@ public class FileUtils2 {
     }
 
     public static Reader toReader(@Nonnull File file) throws IOException {
-        return new InputStreamReader(FileUtils.openInputStream(file), StandardCharsets.UTF_8);
+        return new BufferedReader(new InputStreamReader(FileUtils.openInputStream(file), StandardCharsets.UTF_8));
     }
 
     public static Reader toReader(@Nonnull String file) throws IOException {
@@ -49,7 +49,7 @@ public class FileUtils2 {
     }
 
     public static Writer toWriter(@Nonnull File file) throws IOException {
-        return new OutputStreamWriter(FileUtils.openOutputStream(file), StandardCharsets.UTF_8);
+        return new BufferedWriter(new OutputStreamWriter(FileUtils.openOutputStream(file), StandardCharsets.UTF_8));
     }
 
     public static Writer toWriter(@Nonnull String file) throws IOException {
