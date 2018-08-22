@@ -15,7 +15,7 @@ public abstract class BaseRxLifeCircle extends RxLifeCircle implements Refreshab
     private static final String TAG = BaseRxLifeCircle.class.getSimpleName();
 
     @Override
-    public final void refresh() {
+    public void refresh() {
         Lg.d(TAG, this);
         final String methodTag = MethodUtils.getTag();
         removeDisposable(methodTag);
