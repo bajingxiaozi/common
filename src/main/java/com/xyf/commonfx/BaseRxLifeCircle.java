@@ -19,13 +19,21 @@ public abstract class BaseRxLifeCircle extends RxLifeCircle implements Refreshab
         Lg.d(TAG, this);
         final String methodTag = MethodUtils.getTag();
         removeDisposable(methodTag);
-        Disposable disposable = Observable.timer(300, TimeUnit.MILLISECONDS)
+        Disposable disposable = Observable.timer(waitMilliSeconds, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(JavaFxScheduler.platform())
                 .subscribe(aLong -> realRefresh());
         addDisposable(methodTag, disposable);
     }
 
-    protected abstract void realRefresh();
+    private long waitMilliSeconds = 300;
+
+    public void setWaitMilliSeconds(long waitMilliSeconds) {
+        this.waitMilliSeconds = waitMilliSeconds;
+    }
+
+    protected void realRefresh() {
+
+    }
 
 }
