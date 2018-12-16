@@ -6,6 +6,7 @@ import io.reactivex.ObservableEmitter;
 import org.apache.commons.lang3.SystemUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class SystemUtils2 {
     }
 
     @WorkThread
-    public static boolean execute(@Nonnull ObservableEmitter<String> emitter, @Nonnull List<String> parameters) throws Exception {
+    public static boolean execute(@Nullable ObservableEmitter<String> emitter, @Nonnull List<String> parameters) throws Exception {
         Lg.d(TAG, parameters);
         ProcessBuilder processBuilder = new ProcessBuilder(parameters).redirectErrorStream(true);
         Process executor = processBuilder.start();
@@ -62,7 +63,9 @@ public class SystemUtils2 {
                 }
 
                 Lg.d(TAG, message);
-                emitter.onNext(message);
+                if (emitter != null) {
+                    emitter.onNext(message);
+                }
             }
         }
 
@@ -73,7 +76,7 @@ public class SystemUtils2 {
     }
 
     @WorkThread
-    public static boolean execute(@Nonnull ObservableEmitter<String> emitter, @Nonnull String... parameters) throws Exception {
+    public static boolean execute(@Nullable ObservableEmitter<String> emitter, @Nonnull String... parameters) throws Exception {
         return execute(emitter, Arrays.asList(parameters));
     }
 
