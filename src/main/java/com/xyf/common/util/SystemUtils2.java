@@ -17,7 +17,7 @@ public class SystemUtils2 {
 
     private static final String TAG = SystemUtils2.class.getSimpleName();
 
-    public static void killWindowsProces(@Nonnull String name) throws Exception {
+    public static void killWindowsProcess(@Nonnull String name) throws Exception {
         Preconditions.checkArgument(SystemUtils.IS_OS_WINDOWS);
 
         execute("taskkill", "/im", name, "/f");
@@ -25,6 +25,7 @@ public class SystemUtils2 {
 
     @WorkThread
     public static List<String> execute(@Nonnull List<String> parameters) throws Exception {
+        Lg.d(TAG, parameters);
         ProcessBuilder processBuilder = new ProcessBuilder(parameters).redirectErrorStream(true);
         Process process = processBuilder.start();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
