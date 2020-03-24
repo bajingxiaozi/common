@@ -29,7 +29,7 @@ public class SystemUtils2 {
         Lg.d(TAG, parameters);
         ProcessBuilder processBuilder = new ProcessBuilder(parameters).redirectErrorStream(true);
         Process process = processBuilder.start();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
             List<String> messages = new ArrayList<>();
             while (true) {
                 String message = reader.readLine();
