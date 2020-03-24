@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,7 +57,7 @@ public class SystemUtils2 {
         Lg.d(TAG, parameters);
         ProcessBuilder processBuilder = new ProcessBuilder(parameters).redirectErrorStream(true);
         Process executor = processBuilder.start();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(executor.getInputStream()))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(executor.getInputStream(), StandardCharsets.UTF_8))) {
             while (true) {
                 String message = reader.readLine();
                 if (message == null) {
